@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class Token(BaseModel):
@@ -16,3 +16,7 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
+
+
+class ServiceInformation(BaseModel):
+    url: HttpUrl
