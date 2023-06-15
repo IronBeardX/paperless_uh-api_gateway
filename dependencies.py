@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta
 from typing import Annotated
 from jose import JWTError, jwt
 
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from models import User, UserInDB, TokenData
+from models import User, TokenData
 from internal.security import get_user
 
 import yaml
