@@ -16,7 +16,7 @@ async def test_endpoint():
 
 
 @router.get("/unregister/{service_name}")
-async def unregister_service(service_name: Annotated(str, Path())):
+async def unregister_service(service_name: Annotated[str, Path()]):
     if service_name not in services:
         return {"message": "Service not registered"}
     del services[service_name]
@@ -24,7 +24,7 @@ async def unregister_service(service_name: Annotated(str, Path())):
 
 
 @router.get("/discover/{service_name}")
-async def discover_service(service_name: Annotated(str, Path())):
+async def discover_service(service_name: Annotated[str, Path()]):
     service_info = services.get(service_name)
     if service_info:
         return {'service_name': service_name, 'service_url': service_info.url}
@@ -32,7 +32,7 @@ async def discover_service(service_name: Annotated(str, Path())):
 
 
 @router.post("/register/{service_name}")
-async def register_service(service_name: Annotated(str, Path()),
+async def register_service(service_name: Annotated[str, Path()],
                             information: Annotated[ServiceInformation, Body()]):
     if service_name in services:
         return {"message": "Service already registered"}
