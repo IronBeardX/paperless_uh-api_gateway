@@ -42,9 +42,9 @@ async def login(
         config = yaml.safe_load(file)
     access_token_expires_minutes = config["ACCESS_TOKEN_EXPIRE_MINUTES"]
     access_token_expires = timedelta(minutes = access_token_expires_minutes)
-    access_token = create_access_token(data = {"sub": user.username}, expires_delta = access_token_expires)
+    access_token = create_access_token(data = {"sub": user.email}, expires_delta = access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/users/me")
+@router.post("/users/me", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user

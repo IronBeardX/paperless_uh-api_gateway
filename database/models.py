@@ -17,8 +17,6 @@ class User(Base):
 
     role = relationship('Role', back_populates='users')
 
-    class Config:
-        orm_mode = True
 
 class Role(Base):
     __tablename__ = 'roles'

@@ -10,12 +10,10 @@ import yaml
 pwd_context = CryptContext(schemes = ["bcrypt"], deprecated = "auto")
 
 def get_user(db, email: str):
-    user_dict = get_active_user_by_email(db, email)
-    if user_dict:
-        return UserBase(**user_dict)
+    return get_active_user_by_email(db, email)
     
 def authenticate_user(db, email: str, password: str):
-    user = get_user(db, email)
+    user = get_active_user_by_email(db, email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
