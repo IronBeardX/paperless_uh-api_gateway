@@ -2,3 +2,4 @@
 /api_gateway_env/
 __pycache__
 config.yaml
+sql_app.db
