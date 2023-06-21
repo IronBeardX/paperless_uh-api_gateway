@@ -236,7 +236,7 @@ def read_service_permissions(
 
 @router.put("/user/{user_id}", response_model=User)
 def update_user(
-    user_id: Annotated[int, Path()] = ...,
+    user_id: Annotated[int, Path()],
     new_role_id: Annotated[int, Query()] = ...,
     db: Session = Depends(get_db)
     ):
