@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from router import service_registry, gateway, auth
+from router import service_registry, gateway, auth, crud_endpoints
 import uvicorn
 
 app = FastAPI()
@@ -7,6 +7,7 @@ app = FastAPI()
 app.include_router(service_registry.router, tags = ["service_registry"])
 app.include_router(gateway.router, tags = ["gateway"])
 app.include_router(auth.router, tags = ["auth"])
+app.include_router(crud_endpoints.router, tags = ["crud_endpoints"])
 
 # test_endpoint
 @app.get("/")

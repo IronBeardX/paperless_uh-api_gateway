@@ -1,4 +1,4 @@
-from models import UserInDB
+from internal.schemas import User
 
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
@@ -22,7 +22,7 @@ pwd_context = CryptContext(schemes = ["bcrypt"], deprecated = "auto")
 def get_user(db, username: str):
     if username in db:
         user_dict = db[username]
-        return UserInDB(**user_dict)
+        return User(**user_dict)
     
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)

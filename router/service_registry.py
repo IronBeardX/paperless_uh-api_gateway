@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Body, Path
-from models import ServiceInformation
+from internal.schemas import Service
 
 
 router = APIRouter()
@@ -33,9 +33,9 @@ async def discover_service(service_name: Annotated[str, Path()]):
 
 @router.post("/register/{service_name}")
 async def register_service(service_name: Annotated[str, Path()],
-                            information: Annotated[ServiceInformation, Body()]):
+                            information: Annotated[Service, Body()]):
     if service_name in services:
         return {"message": "Service already registered"}
-    services[service_name] = ServiceInformation(url = information.url)
+    services[service_name] = Service(url = information.url)
     return {"message": "Service registered"}
 

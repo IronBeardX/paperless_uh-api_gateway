@@ -4,8 +4,9 @@ from jose import JWTError, jwt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from models import User, TokenData
+from internal.schemas import User, TokenData
 from internal.security import get_user
+from database.database import SessionLocal
 
 import yaml
 
@@ -23,6 +24,12 @@ db = {
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "/token")# does this goes here?
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(

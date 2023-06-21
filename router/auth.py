@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from models import User
+from internal.schemas import User
 from dependencies import get_current_active_user
 from internal.security import authenticate_user, create_access_token
 
@@ -22,9 +22,6 @@ db = {
 }
 
 router = APIRouter()
-
-def fake_hash_password(password: str):
-    return "fakehashed" + password
 
 @router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
