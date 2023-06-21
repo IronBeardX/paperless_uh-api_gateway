@@ -1,30 +1,36 @@
 from typing import Annotated
 
 from internal.schemas import User
-from dependencies import get_current_active_user
+from dependencies import get_current_active_user, get_db
 from internal.security import authenticate_user, create_access_token
 
 from datetime import timedelta
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
+from sqlalchemy.orm import Session
+
 import yaml
 
 #TODO: Delete this
-db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "admin",
-        "email": "admin@super.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
+# db = {
+#     "admin": {
+#         "username": "admin",
+#         "full_name": "admin",
+#         "email": "admin@super.com",
+#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+#         "disabled": False,
+#     }
+# }
 
 router = APIRouter()
 
 @router.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+async def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Session = Depends(get_db)
+    ):
+    #TODO: How to get the email in the form_data?
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(

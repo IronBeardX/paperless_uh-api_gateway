@@ -10,16 +10,16 @@ from database.database import SessionLocal
 
 import yaml
 
-#TODO: Delete this when database is implemented
-db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "admin",
-        "email": "admin@super.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
+# #TODO: Delete this when database is implemented
+# db = {
+#     "admin": {
+#         "username": "admin",
+#         "full_name": "admin",
+#         "email": "admin@super.com",
+#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+#         "disabled": False,
+#     }
+# }
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "/token")# does this goes here?

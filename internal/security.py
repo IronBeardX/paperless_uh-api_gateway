@@ -1,4 +1,5 @@
-from internal.schemas import User
+from internal.schemas import User, UserBase
+from internal.temp import get_active_user_by_email
 
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
@@ -6,26 +7,15 @@ from jose import jwt
 
 import yaml
 
-#TODO: Delete this when database is implemented
-db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "admin",
-        "email": "admin@super.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
-
 pwd_context = CryptContext(schemes = ["bcrypt"], deprecated = "auto")
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return User(**user_dict)
+def get_user(db, email: str):
+    user_dict = get_active_user_by_email(db, email)
+    if user_dict:
+        return UserBase(**user_dict)
     
-def authenticate_user(db, username: str, password: str):
-    user = get_user(db, username)
+def authenticate_user(db, email: str, password: str):
+    user = get_user(db, email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
