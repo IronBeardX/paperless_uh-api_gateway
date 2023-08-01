@@ -5,9 +5,10 @@ import uvicorn
 
 app = FastAPI()
 
+
 origins = [
     "http://localhost",
-    "http://localhost:3000",  # Ajusta los orígenes permitidos según tus necesidades
+    "http://localhost:3000",
 ]
 
 app.add_middleware(

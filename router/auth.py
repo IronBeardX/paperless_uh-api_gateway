@@ -12,16 +12,6 @@ from sqlalchemy.orm import Session
 
 import yaml
 
-#TODO: Delete this
-# db = {
-#     "admin": {
-#         "username": "admin",
-#         "full_name": "admin",
-#         "email": "admin@super.com",
-#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-#         "disabled": False,
-#     }
-# }
 
 router = APIRouter()
 
@@ -42,7 +32,7 @@ async def login(
         config = yaml.safe_load(file)
     access_token_expires_minutes = config["ACCESS_TOKEN_EXPIRE_MINUTES"]
     access_token_expires = timedelta(minutes = access_token_expires_minutes)
-    access_token = create_access_token(data = {"sub": user.email}, expires_delta = access_token_expires)
+    access_token = create_access_token(data = {"sub": user.email}, expires_delta = access_token_expires) # Add the role to the token data
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/users/me", response_model=User)
