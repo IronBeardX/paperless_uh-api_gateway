@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 
 from internal.schemas import UserCreate, User, RoleBase, Role, Service, ServiceBase, Permission, PermissionBase
-from dependencies import get_db
+from dependencies import get_db, get_current_active_user
 
 from database import crud, models
 from database.database import SessionLocal, engine
@@ -11,7 +11,7 @@ from database.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 #region CREATE

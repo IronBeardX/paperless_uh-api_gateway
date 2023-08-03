@@ -1,12 +1,13 @@
 from typing import Annotated
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Depends, Path
 from pydantic import HttpUrl
 
 import httpx
 
 from router.service_registry import discover_service #TODO: maybe make this in internal functions ?
+from dependencies import get_current_active_user
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 #test_endpoint
 @router.get("/testgateway")

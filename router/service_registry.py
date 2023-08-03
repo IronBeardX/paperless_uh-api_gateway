@@ -1,9 +1,12 @@
 from typing import Annotated
-from fastapi import APIRouter, Body, Path
+from fastapi import APIRouter, Body, Path, Depends
+
 from internal.schemas import Service
+from dependencies import get_current_active_user
 
 
-router = APIRouter()
+
+router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 #in memory database
 services = {}#TODO: Use a database ?
