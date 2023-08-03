@@ -24,9 +24,21 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
-def create_admin_user(db: Session, user: UserCreate):
-    #TODO: Implement this
-    pass
+def create_super_admin(db: Session, user: UserCreate):
+    '''
+    Description:
+    Creates an user with administratives privileges. This function should only be used for initialization purposes.
+
+    Parameters:
+    - db: Database Session
+    - user: User creation schema object with the role id set to 1 (admin)
+    '''
+    hashed_pass = get_password_hash(user.password)
+    db_user = models.User(username=user.username, full_name=user.full_name, email=user.email, hashed_password=hashed_pass, role_id=1)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 def create_service(db: Session, service: ServiceBase):
     db_service = models.Service(**service.dict())
