@@ -1,6 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from router import service_registry, gateway, auth, crud_endpoints
+from sqlalchemy.orm import Session
+
+from internal.initialization import initialize_database
+from dependencies import get_db
+
 import uvicorn
 
 app = FastAPI()
@@ -23,6 +28,16 @@ app.include_router(service_registry.router, tags = ["service_registry"])
 app.include_router(gateway.router, tags = ["gateway"])
 app.include_router(auth.router, tags = ["auth"])
 app.include_router(crud_endpoints.router, tags = ["crud_endpoints"])
+
+# Aplication initialization:
+@app.on_event("startup")
+async def startup_event(db: Session = Depends(get_db)):
+    '''
+    This function is called when the application starts up.
+    '''
+    ## Initialize the database:
+    initialize_database(db)
+
 
 # test_endpoint
 @app.get("/")
