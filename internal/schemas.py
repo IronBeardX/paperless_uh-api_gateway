@@ -44,9 +44,12 @@ class Permission(PermissionBase):
 class RoleBase(BaseModel):
     name: str
 
+class RoleCreate(RoleBase):
+    permissions: list[ int|str ]
+
 class Role(RoleBase):
     id: int
-    permissions: list[str]
+    permissions: list[ str ]
 
     class Config:
         orm_mode = True

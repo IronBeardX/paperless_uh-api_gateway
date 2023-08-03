@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from database import models
-from internal.schemas import UserCreate, ServiceBase, RoleBase, PermissionBase
+from internal.schemas import UserCreate, ServiceBase, RoleCreate, PermissionBase, RoleBase
 from internal.security import get_password_hash
 
 
@@ -34,7 +35,7 @@ def create_super_admin(db: Session, user: UserCreate):
     - user: User creation schema object with the role id set to 1 (admin)
     '''
     hashed_pass = get_password_hash(user.password)
-    db_user = models.User(username=user.username, full_name=user.full_name, email=user.email, hashed_password=hashed_pass, role_id=1)
+    db_user = models.User(username=user.username, full_name=user.full_name, email=user.email, hashed_password=hashed_pass, role_id=2)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -47,12 +48,40 @@ def create_service(db: Session, service: ServiceBase):
     db.refresh(db_service)
     return db_service
 
-def create_role(db: Session, role: RoleBase):
-    db_role = models.Role(**role.dict())
-    db.add(db_role)
-    db.commit()
-    db.refresh(db_role)
-    return db_role
+def create_role(db: Session, role: RoleCreate):
+    if role.permissions:
+        permissions_ids = []
+        for permission in role.permissions:
+            if isinstance(permission, int):
+                db_permission = db.query(models.Permission).filter(models.Permission.id == permission).first()
+            elif isinstance(permission, str):
+                db_permission = db.query(models.Permission).filter(models.Permission.name == permission).first()
+            else:
+                raise Exception(f"Invalid permission type {type(permission)}")
+            
+            if not db_permission:
+                raise Exception(f"Permission {permission} not found")
+
+            permissions_ids.append(db_permission.id)
+
+    try:
+        db_role = models.Role(name=role.name)
+        db.add(db_role)
+        db.flush()
+
+        role_permissions = [
+            models.RolePermission(role_id=db_role.id, permission_id=permission_id)
+            for permission_id in permissions_ids
+        ]
+        db.bulk_save_objects(role_permissions)
+
+        db.commit()
+        db.refresh(db_role)
+        return db_role
+
+    except IntegrityError as e:
+        db.rollback()
+        raise Exception("Role creation failed: " + str(e))
 
 def create_permission(db: Session, permission: PermissionBase):
     db_permission = models.Permission(**permission.dict())
