@@ -31,12 +31,12 @@ app.include_router(crud_endpoints.router, tags = ["crud_endpoints"])
 
 # Aplication initialization:
 @app.on_event("startup")
-async def startup_event(db: Session = Depends(get_db)):
+async def startup_event():
     '''
     This function is called when the application starts up.
     '''
     ## Initialize the database:
-    initialize_database(db)
+    initialize_database()
 
 
 # test_endpoint

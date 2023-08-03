@@ -2,17 +2,30 @@
 from sqlalchemy.orm import Session
 
 from database.crud import create_super_admin, create_role, create_permission
-from internal.schemas import RoleBase, UserCreate, Permission
+from database.database import SessionLocal
+from internal.schemas import RoleCreate, UserCreate, PermissionBase
 
-def initialize_database(db: Session):
+def initialize_database():
+    #BUG: is this process was already done, it will raise an exception
+    db = SessionLocal()
     try:
         # Create roles
-        admin_role = RoleBase(name="admin")
-        user_role = RoleBase(name="new user")
+        admin_role = RoleCreate(
+            name="admin",
+            permissions=[
+                "*"
+            ]
+            )
+        user_role = RoleCreate(
+            name="new user",
+            permissions=[
+                "_"
+            ]
+            )
 
         # Create permissions
-        admin_permission = Permission(permission_name="*")
-        empty_permission = Permission(permission_name="_")
+        admin_permission = PermissionBase(name="*")
+        empty_permission = PermissionBase(name="_")
 
         # Create admin user
         admin_user = UserCreate(
@@ -23,11 +36,11 @@ def initialize_database(db: Session):
         )
 
         # Add the records to the session
-        create_role(db, user_role)
-        create_role(db, admin_role)
-
         create_permission(db, empty_permission)
         create_permission(db, admin_permission)
+
+        create_role(db, user_role)
+        create_role(db, admin_role)
 
         create_super_admin(db, admin_user)
 
