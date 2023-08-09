@@ -45,7 +45,7 @@ def initialize_database():
         create_super_admin(db, admin_user)
 
     except Exception as e:
-        print(e)
-        raise e
+        db.rollback()
+        #TODO: Make it so it tries to create the data one by one and log wich one was already created and wich one was'nt
     finally:
         db.close()
