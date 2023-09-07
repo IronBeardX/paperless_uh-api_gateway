@@ -1,4 +1,5 @@
 /.vscode/
+/.pytest_cache/
 /api_gateway_env/
 __pycache__
 config.yaml
