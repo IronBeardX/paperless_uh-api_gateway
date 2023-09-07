@@ -140,15 +140,17 @@ def get_active_services_by_url(db: Session, url: str):
     return db.query(models.Service).filter(models.Service.url == url, models.Service.is_active == True).all()
 
 
-#TODO: Roles should be returned with the permissions
 def get_role_by_id(db: Session, role_id: int):
     return db.query(models.Role).filter(models.Role.id == role_id).first()
 
 def get_role_by_name(db: Session, name: str):
-    return db.query(models.Role).filter(models.Role.role_name == name).first()
+    return db.query(models.Role).filter(models.Role.name == name).first()
 
 def get_roles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Role).offset(skip).limit(limit).all()
+
+def get_role_permissions(db: Session, role_id: int):
+    return db.query(models.Permission.name).join(models.RolePermission, models.Permission.id == models.RolePermission.permission_id).filter(models.RolePermission.role_id == role_id).all()
 
 
 def get_permission_by_id(db: Session, permission_id: int):
@@ -156,10 +158,11 @@ def get_permission_by_id(db: Session, permission_id: int):
 
 def get_permission_by_name(db: Session, name: str):
     #TODO: this should be a partial match because of the way permissions are stored: "service:endpoint"
-    return db.query(models.Permission).filter(models.Permission.name == name).all()
+    return db.query(models.Permission).filter(models.Permission.name == name).first()
 
 def get_permissions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Permission).offset(skip).limit(limit).all()
+
 
 
 #TODO: Also Implement these

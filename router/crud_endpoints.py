@@ -2,7 +2,7 @@ from fastapi import Depends, Query, Path, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from internal.schemas import UserCreate, User, RoleBase, Role, Service, ServiceBase, Permission, PermissionBase
+from internal.schemas import UserCreate, User, RoleBase, Role, RolePermission,Service, ServiceBase, Permission, PermissionBase
 from dependencies import get_db, get_current_active_user
 
 from database import crud, models
@@ -18,6 +18,10 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 @router.post("/create/users", response_model=User)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    '''
+    Description:
+    Create a new user in the database.
+    '''
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -26,6 +30,10 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/create/services", response_model=Service)
 def create_service(service: ServiceBase, db: Session = Depends(get_db)):
+    '''
+    Description:
+    Create a new service in the database.
+    '''
     db_service = crud.get_service_by_url(db, name=service.url)
     if db_service:
         raise HTTPException(status_code=400, detail="Service already exists")
@@ -34,6 +42,10 @@ def create_service(service: ServiceBase, db: Session = Depends(get_db)):
 
 @router.post("/create/roles", response_model=Role)
 def create_role(role: RoleBase, db: Session = Depends(get_db)):
+    '''
+    Description:
+    Create a new role in the database.
+    '''
     db_role = crud.get_role_by_name(db, name=role.name)
     if db_role:
         raise HTTPException(status_code=400, detail="Role already exists")
@@ -42,6 +54,10 @@ def create_role(role: RoleBase, db: Session = Depends(get_db)):
 
 @router.post("/create/permissions", response_model=Permission)
 def create_permission(permission: PermissionBase, db: Session = Depends(get_db)):
+    '''
+    Description:
+    Create a new permission in the database.
+    '''
     db_permission = crud.get_permission_by_name(db, name=permission.name)
     if db_permission:
         raise HTTPException(status_code=400, detail="Permission already exists")
@@ -54,6 +70,13 @@ def create_role_permission(
     permission_id: Annotated[int, Query()] =...,
     db: Session = Depends(get_db)
     ):
+    '''
+    Description:
+    Create a new relation role-permission in the database.
+    Parameters:
+    - role_id: The id of the role.
+    - permission_id: The id of the permission.
+    '''
     db_role = crud.get_role_by_id(db, role_id=role_id)
     if db_role is None:
         raise HTTPException(status_code=404, detail="Role not found")
@@ -118,17 +141,17 @@ def read_service(
     active_only: Annotated[bool, Query()] = True,
     db: Session = Depends(get_db)
     ):
-    if service_id:
+    if service_id is not None:
         if active_only:
             db_service = crud.get_active_service_by_id(db, service_id=service_id)
         else:
             db_service = crud.get_service_by_id(db, service_id=service_id)
-    elif service_url:
+    elif service_url is not None:
         if active_only:
             db_service = crud.get_active_service_by_url(db, url=service_url)
         else:
             db_service = crud.get_service_by_url(db, url=service_url)
-    elif service_name:
+    elif service_name is not None:
         if active_only:
             db_service = crud.get_active_service_by_name(db, name=service_name)
         else:
@@ -155,15 +178,15 @@ def read_services(
         return crud.get_services(db, skip=skip, limit=limit)
 
 
-@router.get("/role", response_model=Role)
+@router.get("/role", response_model=RolePermission)
 def read_role(
     role_id: Annotated[int | None, Query()] = None,
     role_name: Annotated[str | None, Query()] = None,
     db: Session = Depends(get_db)
     ):
-    if role_id:
+    if role_id is not None:
         db_role = crud.get_role_by_id(db, role_id=role_id)
-    elif role_name:
+    elif role_name is not None:
         db_role = crud.get_role_by_name(db, name=role_name)
     else:
         raise HTTPException(status_code=400, detail="Role ID or Name must be provided")
@@ -171,7 +194,9 @@ def read_role(
     if db_role is None:
         raise HTTPException(status_code=404, detail="Role not found")
     
-    return db_role
+    permissions = crud.get_role_permissions(db, role_id=db_role.id)
+    #TODO: Figure out if i can make it so the return from the sqlalchemy all() returns me the list of strings directly
+    return Role(**db_role.__dict__, permissions = [permission[0] for permission in permissions])
 
 
 @router.get("/roles", response_model=list[Role])
@@ -183,15 +208,16 @@ def read_roles(
     return crud.get_roles(db, skip=skip, limit=limit)
 
 
+#TODO: If name matching is partially done the return is a list and gives errors
 @router.get("/permission", response_model=Permission)
 def read_permission(
     permission_id: Annotated[int | None, Query()] = None,
     permission_name: Annotated[str | None, Query()] = None,
     db: Session = Depends(get_db)
     ):
-    if permission_id:
+    if permission_id is not None:
         db_permission = crud.get_permission_by_id(db, permission_id=permission_id)
-    elif permission_name:
+    elif permission_name is not None:
         db_permission = crud.get_permission_by_name(db, name=permission_name)
     else:
         raise HTTPException(status_code=400, detail="Permission ID or Name must be provided")
@@ -217,14 +243,26 @@ def read_user_services(
     user_id: int,
     db: Session = Depends(get_db)
     ):
+    '''
+    Description:
+    Returns a list of permissions for the given user
+    Parameters:
+    user_id: The ID of the user to get permissions for
+    '''
     raise HTTPException(status_code=501, detail="Not Implemented")
 
 
-@router.get("/user/{service_id}/permissions", response_model=list[Permission])
+@router.get("/{service_id}/permissions", response_model=list[Permission])
 def read_service_permissions(
     service_id: int,
     db: Session = Depends(get_db)
     ):
+    '''
+    Description:
+    Returns a list of permissions needed to access the given service
+    Parameters:
+    service_id: The ID of the service to get permissions for
+    '''
     raise HTTPException(status_code=501, detail="Not Implemented")
 
 

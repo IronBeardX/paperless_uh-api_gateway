@@ -21,7 +21,7 @@ class ServiceBase(BaseModel):
     name: str
     description: str
     url: HttpUrl
-    endpoints: dict
+    endpoints: dict#TODO: Why is this a dict ???
 
 class Service(ServiceBase):
     id: int
@@ -49,7 +49,12 @@ class RoleCreate(RoleBase):
 
 class Role(RoleBase):
     id: int
-    permissions: list[ str ]
+
+    class Config:
+        orm_mode = True
+
+class RolePermission(Role):
+    permissions: list[ str ] #TODO: Think about this
 
     class Config:
         orm_mode = True

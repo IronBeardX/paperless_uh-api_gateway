@@ -1,4 +1,3 @@
-#TODO: implement this file
 from sqlalchemy.orm import Session
 
 from database.crud import create_super_admin, create_role, create_permission
@@ -6,7 +5,6 @@ from database.database import SessionLocal
 from internal.schemas import RoleCreate, UserCreate, PermissionBase
 
 def initialize_database():
-    #BUG: is this process was already done, it will raise an exception
     db = SessionLocal()
     try:
         # Create roles
